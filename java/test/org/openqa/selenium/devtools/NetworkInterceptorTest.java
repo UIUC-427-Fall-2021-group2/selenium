@@ -23,10 +23,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.HasAuthentication;
+import org.openqa.selenium.UsernameAndPassword;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.devtools.HasDevTools;
 import org.openqa.selenium.devtools.NetworkInterceptor;
 import org.openqa.selenium.environment.webserver.NettyAppServer;
+import org.openqa.selenium.remote.Augmenter;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.http.Contents;
 import org.openqa.selenium.remote.http.Filter;
 import org.openqa.selenium.remote.http.HttpResponse;
@@ -34,6 +39,7 @@ import org.openqa.selenium.remote.http.Route;
 import org.openqa.selenium.testing.drivers.Browser;
 import org.openqa.selenium.testing.drivers.WebDriverBuilder;
 
+import java.net.MalformedURLException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.net.MediaType.XHTML_UTF_8;
@@ -185,5 +191,46 @@ public class NetworkInterceptorTest {
       String body = driver.findElement(By.tagName("body")).getText();
       assertThat(body).contains("Hello, World!");
     }
+  }
+
+  /**
+   * This test case tests the issue 9968 to make sure that one can authenticate successfully.
+   * @throws MalformedURLException - it may throw this exception
+   * @throws InterruptedException - - it may throw this exception
+   */
+  @Test
+  public void shouldBeAbletoAuthenticate() throws MalformedURLException, InterruptedException {
+    ChromeOptions chromeOptions = new ChromeOptions();
+    WebDriver driver = RemoteWebDriver.builder()
+      .oneOf(chromeOptions)
+      .address("http://localhost:4444")
+      .build();
+
+    DevTools devTools = ((HasDevTools) driver).getDevTools();
+    devTools.createSession();
+
+    Augmenter augmenter = new Augmenter();
+
+    driver = augmenter
+      .addDriverAugmentation("chrome",
+                             HasAuthentication.class,
+                             (caps, exec) -> (whenThisMatches, useTheseCredentials) ->
+                               devTools.getDomains()
+                                 .network()
+                                 .addAuthHandler(whenThisMatches, useTheseCredentials))
+      .augment(driver);
+
+    ((HasAuthentication) driver).register(UsernameAndPassword.of("foo", "bar"));
+
+    driver.get("http://httpbin.org/basic-auth/foo/bar");
+
+    String pageSource = driver.getPageSource();
+
+    if(pageSource.contains("authenticated")) {
+      System.out.println("True");
+    } else {
+      System.out.println("False");
+    }
+    driver.quit();
   }
 }
