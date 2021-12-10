@@ -197,6 +197,7 @@ public class NetworkInterceptorTest {
    * This test case tests the issue 9968 to make sure that one can authenticate successfully.
    * @throws MalformedURLException - it may throw this exception
    * @throws InterruptedException - - it may throw this exception
+   * CS427 Issue link: https://github.com/SeleniumHQ/selenium/issues/9968
    */
   @Test
   public void shouldBeAbletoAuthenticate() throws MalformedURLException, InterruptedException {

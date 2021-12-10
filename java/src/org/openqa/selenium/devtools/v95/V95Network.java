@@ -25,6 +25,10 @@ import org.openqa.selenium.devtools.DevTools;
 import org.openqa.selenium.devtools.DevToolsException;
 import org.openqa.selenium.devtools.Event;
 import org.openqa.selenium.devtools.idealized.Network;
+import org.openqa.selenium.devtools.v85.fetch.Fetch;
+import org.openqa.selenium.devtools.v85.fetch.model.AuthChallengeResponse;
+import org.openqa.selenium.devtools.v85.fetch.model.AuthRequired;
+import org.openqa.selenium.devtools.v85.fetch.model.RequestPaused;
 import org.openqa.selenium.devtools.v95.fetch.Fetch;
 import org.openqa.selenium.devtools.v95.fetch.model.AuthChallengeResponse;
 import org.openqa.selenium.devtools.v95.fetch.model.AuthRequired;
@@ -104,7 +108,7 @@ public class V95Network extends Network<AuthRequired, RequestPaused> {
       authRequired.getRequestId(),
       new AuthChallengeResponse(
         AuthChallengeResponse.Response.PROVIDECREDENTIALS,
-        Optional.ofNullable(credentials.username()),
+        Optional.ofNullable( credentials.username() ),
         Optional.ofNullable(credentials.password())));
   }
 

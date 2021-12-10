@@ -104,7 +104,7 @@ public class V94Network extends Network<AuthRequired, RequestPaused> {
       authRequired.getRequestId(),
       new AuthChallengeResponse(
         AuthChallengeResponse.Response.PROVIDECREDENTIALS,
-        Optional.ofNullable(credentials.username()),
+        Optional.ofNullable( credentials.username() ),
         Optional.ofNullable(credentials.password())));
   }
 
